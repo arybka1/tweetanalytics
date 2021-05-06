@@ -1,0 +1,75 @@
+library(rtweet)
+library(httr)
+library(tidyverse)
+
+## store api keys
+api_key <- 
+api_secret_key <- 
+access_token <- 
+access_token_secret <- 
+
+## authenticate via web browser
+token <- create_token(
+  app = "RybkaCyberSecR",
+  consumer_key = api_key,
+  consumer_secret = api_secret_key,
+  access_token = access_token,
+  access_secret = access_token_secret)
+
+## check to see if the token is loaded
+get_token()
+
+## Create a test file and search for 20 tweets using the summer hashtag
+rt <- search_tweets(
+  "#summer", n = 200, include_rts = FALSE
+)
+
+## Prune columns and write data to CSV for review ##
+library(dplyr)
+df <-rt[,c(4,5,6,7,13,14,16,17,21,25,72,73,75,76,78,79,80,81,82,86,88)]
+df <- apply(df,2,as.character)
+df
+
+write.csv(df,"C:\\Users\\antho\\Desktop\\Test.csv", row.names = FALSE)
+
+## Manually comb output via Excel and identify bots ## 
+## Create bot column ##
+## Import file back into R ##
+
+## Check initial correlations ##
+library(psych)
+df_data=(KNNTrain[,c(4,15,16,17,18,19,22)])
+df2 <- data.frame(apply(df_data, 2, function(x) as.numeric(as.character(x))))
+cormat = cor(df2)
+cortest.bartlett(cormat, n=nrow(df2))
+
+## identify classifier variable ##
+bot = KNNTrain$bot
+
+## build the KNN ##
+library(class)
+knnmdl <- knn(KNNTrain[,c(4,15,16,17,18,19)],
+              KNNTest[,c(4,15,16,17,18,19)],
+              bot,
+              k = 12,
+              prob = TRUE)
+
+knnmdl
+
+#Calculate the proportion of correct classification for k = 12
+accuracy <- 100 * sum(KNNTest$bot == knnmdl)/NROW(KNNTest$bot)
+
+table(knnmdl, KNNTest$bot)
+
+install.packages('caret')
+library(caret)
+install.packages("e1071")
+
+confusionMatrix(table(knnmdl, KNNTest$bot))
+
+
+
+
+
+## Testing JSON input ##
+rt <- search_30day("#summer", n=300, env_name="CyberSecR", fromDate = 202104210000, toDate = 202104280000)
